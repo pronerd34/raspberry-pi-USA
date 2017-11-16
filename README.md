@@ -1,6 +1,8 @@
 # raspberry-pi-USA
 first boot startup script to change locale information to US outside of raspi-config.
 
+must be run as root!  use "sudo ./raspberry-pi-USA". Be sure to 'chmod 755' the script after downloading.
+
 The variables are set for my location and hardware, but can be easily modified.
 
 The first section (lines 2-7) set some environmental variables so that dpkg-reconfigure doesn't complain later.
