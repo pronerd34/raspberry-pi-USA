@@ -5,11 +5,11 @@ must be run as root!  use "sudo ./raspberry-pi-USA". Be sure to 'chmod 755' the 
 
 The variables are set for my location and hardware, but can be easily modified.
 
-The first section (lines 2-7) set some environmental variables so that dpkg-reconfigure doesn't complain later.
+the first section (lines 2-11) enables en_US.UTF-8 as a locale and disables en_GB.UTF-8, then sets en_US.UTF-8 as the default locale.
 
-the second section (lines 8-11) creates /etc/timezone with a defined timezone, then sets that by configuring tzdata.
+The second section (lines 12-17) set some environmental variables so that dpkg-reconfigure doesn't complain later.
 
-the third section (lines 12-21) enables en_US.UTF-8 as a locale and disables en_GB.UTF-8, then sets en_US.UTF-8 as the default locale.
+the third section (lines 18-21) creates /etc/timezone with a defined timezone, then sets that by configuring tzdata.
 
 the fourth section (lines 22-27) change the variables in /etc/default/keyboard to match the typical US PC keyboard.
 
