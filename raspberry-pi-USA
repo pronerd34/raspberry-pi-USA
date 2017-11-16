@@ -1,14 +1,4 @@
 #! /bin/bash
-echo "exporting LANG"
-export LANG=en_US.UTF-8
-echo "exporting LANGUAGE"
-export LANGUAGE=en_US.UTF-8
-echo "exporting LC_ALL"
-export LC_ALL=en_US.UTF-8
-echo "setting /etc/timezone"
-echo "America/Detroit" > /etc/timezone
-echo "configuring tzdata"
-DEBIAN_FRONTEND=noninteractive dpkg-reconfigure tzdata
 echo "enabling en_US.UTF-8"
 sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
 echo "disabling en_GB.UTF-8"
@@ -19,6 +9,16 @@ echo "configuring locales"
 DEBIAN_FRONTEND=noninteractive dpkg-reconfigure locales
 echo "update locale"
 update-locale LANG=en_US.UTF-8
+echo "exporting LANG"
+export LANG=en_US.UTF-8
+echo "exporting LANGUAGE"
+export LANGUAGE=en_US.UTF-8
+echo "exporting LC_ALL"
+export LC_ALL=en_US.UTF-8
+echo "setting /etc/timezone"
+echo "America/Detroit" > /etc/timezone
+echo "configuring tzdata"
+DEBIAN_FRONTEND=noninteractive dpkg-reconfigure tzdata
 echo "changing keyboard model"
 L='pc101' && sed -i 's/XKBMODEL=\"\w*"/XKBMODEL=\"'$L'\"/g' /etc/default/keyboard
 echo "changing keyboard layout"
