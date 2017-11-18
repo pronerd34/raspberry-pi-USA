@@ -1,27 +1,38 @@
 #! /bin/bash
-echo "enabling en_US.UTF-8"
+if [[ $EUID > 0 ]]
+	then echo "Please run as root"
+	exit
+fi
+
+TZ="America/Detroit"
+KBMODEL="pc101"
+KBLAYOUT="us"
+KBOPTIONS="lv3:ralt_alt"
+
+echo "Setting timezone"
+rm /etc/localtime
+ln -s /usr/share/zoneinfo/$TZ /etc/localtime
+rm /etc/timezone
+echo $TZ > /etc/timezone
+timedatectl
+
+echo "adding en_US.UTF-8 locale"
 sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
-echo "disabling en_GB.UTF-8"
-sed -i -e 's/en_GB.UTF-8 UTF-8/# en_GB.UTF-8 UTF-8/' /etc/locale.gen
-echo "setting /etc/default/locale"
-echo 'LANG="en_US.UTF8"' > /etc/default/locale
-echo "configuring locales"
 DEBIAN_FRONTEND=noninteractive dpkg-reconfigure locales
-echo "update locale"
-update-locale LANG=en_US.UTF-8
-echo "exporting LANG"
-export LANG=en_US.UTF-8
-echo "exporting LANGUAGE"
-export LANGUAGE=en_US.UTF-8
-echo "exporting LC_ALL"
-export LC_ALL=en_US.UTF-8
-echo "setting /etc/timezone"
-echo "America/Detroit" > /etc/timezone
-echo "configuring tzdata"
-DEBIAN_FRONTEND=noninteractive dpkg-reconfigure tzdata
-echo "changing keyboard model"
-L='pc101' && sed -i 's/XKBMODEL=\"\w*"/XKBMODEL=\"'$L'\"/g' /etc/default/keyboard
-echo "changing keyboard layout"
-L='us' && sed -i 's/XKBLAYOUT=\"\w*"/XKLAYOUT=\"'$L'\"/g' /etc/default/keyboard
-echo "changing keyboard options"
-L='lv3:ralt_alt' && sed -i 's/XKBOPTIONS=\"\w*"/XKBOPTIONS=\"'$L'\"/g' /etc/default/keyboard
+
+echo "setting en_US.UTF-8 as locale"
+export LANG="en_US.UTF-8"
+echo 'LANG="en_US.UTF-8"' > /etc/default/locale
+echo "removing en_GB.UTF-8 locale"
+sed -i -e 's/en_GB.UTF-8 UTF-8/# en_GB.UTF-8 UTF-8/' /etc/locale.gen
+DEBIAN_FRONTEND=noninteractive dpkg-reconfigure locales
+
+echo "changing keyboard to US PC101"
+sed -i 's/XKBMODEL=\"\w*"/XKBMODEL=\"'$KBMODEL'\"/g' /etc/default/keyboard
+sed -i 's/XKBLAYOUT=\"\w*"/XKLAYOUT=\"'$KBLAYOUT'\"/g' /etc/default/keyboard
+sed -i 's/XKBOPTIONS=\"\w*"/XKBOPTIONS=\"'$KBMODEL'\"/g' /etc/default/keyboard
+
+echo "changing aliases in .bashrc"
+sed -i 's/#alias l/alias l/g' /home/pi/.bashrc
+sed -i 's/ls -A/ls-lA/g' /home/pi/.bashrc
+reboot
