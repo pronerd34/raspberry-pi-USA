@@ -34,5 +34,5 @@ sed -i 's/XKBOPTIONS=\"\w*"/XKBOPTIONS=\"'$KBMODEL'\"/g' /etc/default/keyboard
 
 echo "changing aliases in .bashrc"
 sed -i 's/#alias l/alias l/g' /home/pi/.bashrc
-sed -i 's/ls -A/ls-lA/g' /home/pi/.bashrc
+sed -i 's/ls -A/ls -lA/g' /home/pi/.bashrc
 reboot
