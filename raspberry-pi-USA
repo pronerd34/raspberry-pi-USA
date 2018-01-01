@@ -1,13 +1,72 @@
 #! /bin/bash
 if [[ $EUID > 0 ]]
-	then echo "Please run as root"
-	exit
+        then echo "Please run as root"
+        exit
 fi
 
+PORT="22"
+HOSTNAME="raspberrypi"
+KEYFILE=""
+HOSTNAMEMAX=$(getconf HOST_NAME_MAX)
 TZ="America/Detroit"
 KBMODEL="pc101"
 KBLAYOUT="us"
 KBOPTIONS="lv3:ralt_alt"
+
+while getopts ":h:k:p:" opt; do
+        case $opt in
+                h)
+                        HOSTNAME="$OPTARG"
+                        HOSTNAMELENGTH=${#HOSTNAME}
+                        if ! [[ "$HOSTNAME" =~ ^[a-zA-Z0-9\ \-\_]+ ]]; then
+                                echo "invalid hostname '$HOSTNAME'"
+                                exit 1
+                        fi
+                        if [ "$HOSTNAMELENGTH" -gt "$HOSTNAMEMAX" ]
+                                then echo "hostname has too many characters."
+                                exit 1
+                        fi
+                        ;;
+                k)
+                        KEYFILE="$OPTARG"
+                        if ! [[ -f $KEYFILE ]]; then
+                                echo "key file not found"
+                                exit 1
+                        fi
+                        ;;
+                p)
+                        PORT="$OPTARG"
+                        if ! [[ $PORT =~ -?[0-9]+ ]]; then
+                                echo "port should be a number only"
+                                exit 1
+                        fi
+                        if [[ "$PORT" -lt 1024 || "$PORT" -gt 49151 ]] && [[ "$PORT" -ne 22 ]]; then
+                                echo "port should be between 1024 and 49151"
+                                echo "if not specified, the default port 22 will be used"
+                                exit 1
+                        fi
+                        ;;
+                :)
+                        echo "Option -$OPTARG requires an argument."
+                        exit 1
+                        ;;
+                \?)
+                        echo "Usage: raspberry-pi-USA [-h hostname] [-k file] [-p IPport]"
+                        echo "  -k file: file should contain the public key to be used for SSA"
+                        exit 1
+                        ;;
+        esac
+done
+
+echo "Hostname is '$HOSTNAME'"
+echo "RSA-KeyFile is '$KEYFILE'"
+echo "SSH Port is '$PORT'"
+
+echo "Getting updates from repository and installing samba.  This may take some time..."
+apt-get update
+apt-get dist-upgrade -y
+apt-get install samba -y
+
 
 echo "Setting timezone"
 rm /etc/localtime
@@ -31,8 +90,22 @@ echo "changing keyboard to US PC101"
 sed -i 's/XKBMODEL=\"\w*"/XKBMODEL=\"'$KBMODEL'\"/g' /etc/default/keyboard
 sed -i 's/XKBLAYOUT=\"\w*"/XKLAYOUT=\"'$KBLAYOUT'\"/g' /etc/default/keyboard
 sed -i 's/XKBOPTIONS=\"\w*"/XKBOPTIONS=\"'$KBMODEL'\"/g' /etc/default/keyboard
+sed -i 's/#Port 22/Port '$PORT'/g' /etc/ssh/sshd_config
+
+if [ "$KEYFILE" -ne "" ]; then
+	echo "Creating SSH key"
+	mkdir /home/pi/.ssh
+	mv $KEYFILE /home/pi/.ssh/authorized_keys
+	chmod 600 /home/pi/.ssh/authorized_keys
+	chown pi:pi /home/pi/.ssh/authorized_keys
+fi
+
+echo "setting new hostname"
+sed -i 's/raspberrypi/'$HOSTNAME'/g' /etc/hostname
+sed -i 's/127.0.0.1\traspberrypi/127.0.0.1\t'$HOSTNAME'/g' /etc/hosts
+
 
 echo "changing aliases in .bashrc"
 sed -i 's/#alias l/alias l/g' /home/pi/.bashrc
 sed -i 's/ls -A/ls -lA/g' /home/pi/.bashrc
-reboot
+
