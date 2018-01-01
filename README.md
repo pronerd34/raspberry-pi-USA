@@ -1,9 +1,21 @@
 # raspberry-pi-USA
-first boot startup script to change locale information to US outside of raspi-config.
+first boot startup script update most of the common changes made to a fresh Raspbian install
 
-must be run as root!  use "sudo ./raspberry-pi-USA". Be sure to 'chmod 755' the script after downloading.
+It will:
+  run apt-get update and apt-get dist-upgrade
+  install Samba to make it easier for your Windows PC to find it on your network by hostname.
+  change locale and timezone information to US outside of raspi-config.
+  change the keyboard layout to a US PC-104 keyboard
+  enable the aliases for the 'ls' commands in .bashrc
 
-The variables are set for my location and hardware, but can be easily modified.
+It can:
+  change the ssh port to be used for communication.
+  install a SSH-RSA key for auto-authentication.
+  change the hostname of the Pi.
+  
+NOTICE: must be run as root!  use "sudo ./raspberry-pi-USA". Be sure to 'chmod 755' the script after downloading.
+
+Some of the variables are set for my location and hardware, but can be easily modified.
 
 I've worked out what was needed to prevent some of the error messages that pop up, so if you run the script
-once it will reboot and you should be set up for the typical US setup.
+once and reboot, you should be set up for the typical US usage.
